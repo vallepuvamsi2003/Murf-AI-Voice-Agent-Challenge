@@ -1,1 +1,8 @@
+T Run:
+   -Backend-
 
+      cd backend
+      python app.py
+
+-Frontend-
+Livesever
