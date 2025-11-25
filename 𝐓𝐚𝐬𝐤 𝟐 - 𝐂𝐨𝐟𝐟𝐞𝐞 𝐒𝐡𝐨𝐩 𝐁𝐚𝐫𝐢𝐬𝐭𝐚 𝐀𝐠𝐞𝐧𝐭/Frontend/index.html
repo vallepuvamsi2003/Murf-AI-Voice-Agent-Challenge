@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafe Py Barista Agent</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            background-color: #fafafa;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Scrollbar styling */
+        #chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            line-height: 1.4;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+
+        .agent-msg {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-msg {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .system-msg {
+            background-color: #d4edda;
+            color: #155724;
+            align-self: center;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            transition: background-color 0.3s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #94d3a2;
+            cursor: not-allowed;
+        }
+
+        #state-display {
+            background-color: #2d3436;
+            color: #55efc4;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        h3 {
+            margin: 0 0 5px 0;
+            color: #dfe6e9;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>☕ Cafe Py Barista</h1>
+        
+        <div id="chat-box">
+            <div class="message agent-msg">
+                Hi there! Welcome to Cafe Py. Tap the mic to start your order.
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="mic-btn">
+                <span>🎤</span> Speak
+            </button>
+        </div>
+
+        <div id="state-display">
+            <h3>Current Order Ticket:</h3>
+            <pre id="json-state">
+{
+    "drinkType": null,
+    "size": null,
+    "milk": null,
+    "extras": [],
+    "name": null
+}</pre>
+        </div>
+    </div>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // --- Configuration ---
+        const API_URL = 'http://localhost:8000/chat';
+
+        // --- State Management ---
+        let currentState = {
+            drinkType: null,
+            size: null,
+            milk: null,
+            extras: [],
+            name: null
+        };
+
+        // --- DOM Elements ---
+        const chatBox = document.getElementById('chat-box');
+        const micBtn = document.getElementById('mic-btn');
+        const jsonDisplay = document.getElementById('json-state');
+
+        // --- Speech Recognition Setup ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser doesn't support Speech Recognition. Please use Google Chrome or Microsoft Edge.");
+            micBtn.disabled = true;
+            micBtn.textContent = "❌ Browser Not Supported";
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        // --- Event Listeners ---
+        micBtn.addEventListener('click', () => {
+            try {
+                recognition.start();
+                micBtn.innerHTML = "<span>👂</span> Listening...";
+                micBtn.disabled = true;
+                micBtn.style.backgroundColor = "#ffc107"; // Yellow for listening
+                micBtn.style.color = "#000";
+            } catch (e) {
+                console.error("Recognition start error:", e);
+                micBtn.disabled = false;
+                micBtn.textContent = "🎤 Retry";
+            }
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            addMessage(transcript, 'user-msg');
+            sendToBackend(transcript);
+        };
+
+        recognition.onend = () => {
+            // Reset button if it wasn't disabled by completion logic
+            if (micBtn.textContent !== "✅ Order Complete") {
+                micBtn.innerHTML = "<span>🎤</span> Speak";
+                micBtn.disabled = false;
+                micBtn.style.backgroundColor = "#28a745"; // Back to green
+                micBtn.style.color = "white";
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech Error:", event.error);
+            micBtn.innerHTML = "<span>🎤</span> Retry";
+            micBtn.disabled = false;
+            micBtn.style.backgroundColor = "#dc3545"; // Red for error
+            micBtn.style.color = "white";
+        };
+
+        // --- UI Functions ---
+        function addMessage(text, className) {
+            const div = document.createElement('div');
+            div.classList.add('message', className);
+            div.textContent = text;
+            chatBox.appendChild(div);
+            // Auto scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // --- Text to Speech ---
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                // Optional: Select a specific voice if available
+                const voices = window.speechSynthesis.getVoices();
+                // Try to find a female English voice for a barista vibe (optional)
+                const preferredVoice = voices.find(voice => voice.name.includes('Google US English') || voice.name.includes('Samantha'));
+                if (preferredVoice) utterance.voice = preferredVoice;
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn("Text-to-speech not supported.");
+            }
+        }
+
+        // --- Backend Communication ---
+        async function sendToBackend(userInput) {
+            // Show a temporary loading indicator
+            const loadingMsg = document.createElement('div');
+            loadingMsg.classList.add('message', 'agent-msg');
+            loadingMsg.textContent = "...";
+            loadingMsg.id = "loading-indicator";
+            chatBox.appendChild(loadingMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_input: userInput,
+                        current_state: currentState
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Remove loading indicator
+                const loader = document.getElementById('loading-indicator');
+                if(loader) loader.remove();
+
+                // Update State
+                currentState = data.updated_state;
+                jsonDisplay.textContent = JSON.stringify(currentState, null, 4);
+                
+                // Handle Response
+                addMessage(data.agent_response, 'agent-msg');
+                speak(data.agent_response);
+
+                // Check Completion
+                if (data.is_complete) {
+                    micBtn.innerHTML = "<span>✅</span> Order Complete";
+                    micBtn.disabled = true;
+                    micBtn.style.backgroundColor = "#6c757d"; // Grey out
+                    addMessage("Order ticket saved to backend!", 'system-msg');
+                }
+
+            } catch (error) {
+                // Remove loading indicator
+                const loader = document.getElementById('loading-indicator');
+                if(loader) loader.remove();
+
+                console.error("Fetch Error:", error);
+                addMessage("Error: Could not connect to the Barista Agent. Is the backend running?", 'system-msg');
+                speak("I'm having trouble connecting to the system.");
+            }
+        }
+    </script>
+</body>
+</html>
