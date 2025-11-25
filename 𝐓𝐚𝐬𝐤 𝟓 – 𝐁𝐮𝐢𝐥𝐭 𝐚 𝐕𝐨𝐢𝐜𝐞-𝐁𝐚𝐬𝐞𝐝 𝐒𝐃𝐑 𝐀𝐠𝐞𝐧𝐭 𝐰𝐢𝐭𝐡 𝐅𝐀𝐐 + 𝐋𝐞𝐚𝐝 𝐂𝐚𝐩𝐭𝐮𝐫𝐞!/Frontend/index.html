@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Sales Assistant</title>
+    <style>
+        :root { --brand-blue: #3395ff; --brand-dark: #02042b; --brand-light: #eef9fe; --text-main: #0b1836; }
+        body { font-family: 'Inter', sans-serif; background-color: #f5f8fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        
+        /* --- START OVERLAY --- */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 4, 43, 0.95);
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            z-index: 1000; color: white;
+        }
+        #start-btn {
+            padding: 15px 40px; font-size: 18px; background: var(--brand-blue); color: white;
+            border: none; border-radius: 30px; cursor: pointer; transition: transform 0.2s;
+            font-weight: bold; margin-top: 20px;
+        }
+        #start-btn:hover { transform: scale(1.05); background: #2684ff; }
+
+        /* --- MAIN UI --- */
+        .main-container { display: flex; width: 900px; height: 80vh; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); overflow: hidden; }
+        .chat-section { flex: 2; display: flex; flex-direction: column; border-right: 1px solid #eee; }
+        .header { padding: 20px; background: var(--brand-dark); color: white; display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 45px; height: 45px; background: var(--brand-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; }
+        .chat-window { flex: 1; padding: 20px; overflow-y: auto; background: #fff; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 75%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        .agent-msg { background: var(--brand-light); color: var(--brand-dark); align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user-msg { background: var(--brand-blue); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .controls { padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        #mic-btn { width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--brand-blue); color: white; font-size: 24px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(51, 149, 255, 0.4); }
+        #mic-btn:hover { transform: scale(1.05); }
+        .listening { animation: pulse 1.5s infinite; background: #ef5350 !important; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 83, 80, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 83, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 83, 80, 0); } }
+        .info-section { flex: 1; background: #fafbfc; padding: 25px; display: flex; flex-direction: column; }
+        h2 { font-size: 18px; color: var(--brand-dark); margin-bottom: 20px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 10px; display: inline-block; }
+        .field-group { margin-bottom: 15px; }
+        .label { font-size: 11px; color: #8899a6; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+        .value { font-size: 14px; color: var(--text-main); font-weight: 500; margin-top: 4px; min-height: 20px; }
+        .placeholder { color: #ccc; font-style: italic; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        button:disabled { background-color: #4caf50 !important; cursor: default; transform: none !important; opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY TO ENABLE AUDIO -->
+    <div id="start-overlay">
+        <div style="font-size: 40px; margin-bottom: 10px;">👋</div>
+        <h2>Razorpay Sales Assistant</h2>
+        <p>Click below to start the voice session</p>
+        <button id="start-btn">Start Conversation</button>
+    </div>
+
+    <div class="main-container">
+        <section class="chat-section">
+            <div class="header">
+                <div class="avatar">R</div>
+                <div><div style="font-weight: bold;">Riya (Sales)</div><div style="font-size: 12px; opacity: 0.8;">Razorpay SDR Agent</div></div>
+            </div>
+            
+            <div id="chat-window" class="chat-window">
+                <!-- Greeting appears here after start -->
+            </div>
+
+            <div class="controls">
+                <button id="mic-btn">🎙️</button>
+                <div id="status-text" style="color: #888; font-size: 14px;">Tap to speak</div>
+            </div>
+        </section>
+        <section class="info-section">
+            <h2>Lead Profile</h2>
+            <div class="field-group"><div class="label">Name</div><div class="value" id="disp-name"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Company</div><div class="value" id="disp-company"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Role</div><div class="value" id="disp-role"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Email</div><div class="value" id="disp-email"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Use Case</div><div class="value" id="disp-usecase"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Team Size</div><div class="value" id="disp-team"><span class="placeholder">---</span></div></div>
+            <div class="field-group"><div class="label">Timeline</div><div class="value" id="disp-timeline"><span class="placeholder">---</span></div></div>
+        </section>
+    </div>
+
+    <script>
+        let leadData = { name: null, company: null, email: null, role: null, use_case: null, team_size: null, timeline: null };
+        let step = "greeting";
+        const chatWindow = document.getElementById('chat-window');
+        const micBtn = document.getElementById('mic-btn');
+        const statusText = document.getElementById('status-text');
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-IN';
+        recognition.interimResults = false;
+
+        // --- NEW LOGIC: START BUTTON ---
+        startBtn.addEventListener('click', () => {
+            startOverlay.style.display = 'none'; // Hide overlay
+            sendToBackend(""); // Trigger greeting logic
+        });
+
+        micBtn.addEventListener('click', () => {
+            if (micBtn.disabled) return;
+            recognition.start();
+            micBtn.classList.add('listening');
+            statusText.textContent = "Listening...";
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            addMessage(transcript, 'user-msg');
+            sendToBackend(transcript);
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('listening');
+            if(!micBtn.disabled) statusText.textContent = "Tap to speak";
+        };
+
+        async function sendToBackend(text) {
+            try {
+                const response = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_input: text, lead_data: leadData, conversation_step: step })
+                });
+
+                const data = await response.json();
+                leadData = data.updated_lead_data;
+                step = data.updated_step;
+
+                updateDisplayFields();
+                if (data.agent_response) {
+                    addMessage(data.agent_response, 'agent-msg');
+                    speak(data.agent_response);
+                }
+
+                if (data.is_complete) {
+                    recognition.stop();
+                    micBtn.disabled = true;
+                    micBtn.innerHTML = "✓";
+                    statusText.textContent = "Conversation Saved.";
+                }
+
+            } catch (error) { console.error(error); statusText.textContent = "Error connecting to backend"; }
+        }
+
+        function addMessage(text, className) {
+            const div = document.createElement('div');
+            div.classList.add('message', className);
+            div.innerText = text;
+            chatWindow.appendChild(div);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            const indianVoice = voices.find(v => v.lang.includes('IN') || v.name.includes('India'));
+            if (indianVoice) utterance.voice = indianVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateDisplayFields() {
+            if(leadData.name) document.getElementById('disp-name').innerText = leadData.name;
+            if(leadData.company) document.getElementById('disp-company').innerText = leadData.company;
+            if(leadData.role) document.getElementById('disp-role').innerText = leadData.role;
+            if(leadData.email) document.getElementById('disp-email').innerText = leadData.email;
+            if(leadData.use_case) document.getElementById('disp-usecase').innerText = leadData.use_case;
+            if(leadData.team_size) document.getElementById('disp-team').innerText = leadData.team_size;
+            if(leadData.timeline) document.getElementById('disp-timeline').innerText = leadData.timeline;
+        }
+    </script>
+</body>
+</html>

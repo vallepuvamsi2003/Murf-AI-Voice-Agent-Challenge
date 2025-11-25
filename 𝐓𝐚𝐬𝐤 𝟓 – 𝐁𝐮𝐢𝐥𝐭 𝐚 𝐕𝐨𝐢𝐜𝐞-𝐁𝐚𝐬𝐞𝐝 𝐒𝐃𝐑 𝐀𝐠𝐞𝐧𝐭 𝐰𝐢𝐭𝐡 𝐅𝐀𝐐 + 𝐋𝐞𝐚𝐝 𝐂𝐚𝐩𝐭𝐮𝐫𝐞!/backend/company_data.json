@@ -1,0 +1,44 @@
+{
+  "company_info": {
+    "name": "Razorpay",
+    "description": "India's leading payments solution provider."
+  },
+  "faqs": [
+    {
+      "keywords": ["what does your product do", "what do you do", "product overview", "features"],
+      "answer": "Razorpay provides a full-stack financial suite. We help you accept payments via 100+ modes, manage subscriptions, automate payroll, and even bank via RazorpayX."
+    },
+    {
+      "keywords": ["free tier", "free plan", "subscription fee", "monthly cost"],
+      "answer": "We do not charge any monthly subscription or setup fees. You only pay a small transaction fee (standard 2%) when you actually receive a payment."
+    },
+    {
+      "keywords": ["who is this for", "target audience", "can i use", "startups"],
+      "answer": "Razorpay is built for everyone—from freelancers and early-stage startups to large enterprises. If you need to accept money online, we are for you."
+    },
+    {
+      "keywords": ["price", "cost", "fee", "pricing", "charge", "commission"],
+      "answer": "For our standard Payment Gateway, we charge 2% per transaction for Indian cards, UPI, and wallets. For international cards, the fee is 3%."
+    },
+    {
+      "keywords": ["payment gateway", "gateway work"],
+      "answer": "Our Payment Gateway allows you to accept payments on your website or app via UPI, Credit/Debit cards, and Netbanking securely."
+    },
+    {
+      "keywords": ["payroll", "salary", "compliance"],
+      "answer": "RazorpayX Payroll is our automated payroll software. It handles salary disbursals, compliance payments (TDS, PF, PT), and filings automatically."
+    },
+    {
+      "keywords": ["setup", "integration", "integrate", "plugin"],
+      "answer": "Integration is super fast! We have plugins for WooCommerce, Shopify, and Magento, plus SDKs for Android, iOS, and Web. You can go live in minutes."
+    },
+    {
+      "keywords": ["settlement", "money", "bank"],
+      "answer": "Standard settlement cycle is T+2 days, meaning money hits your bank account 2 working days after the transaction."
+    },
+    {
+      "keywords": ["support", "contact", "help", "customer care"],
+      "answer": "You can reach our support team via the dashboard or email support@razorpay.com. We are available 24/7."
+    }
+  ]
+}
