@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pydantic
+
+python -m uvicorn main:app --reload
