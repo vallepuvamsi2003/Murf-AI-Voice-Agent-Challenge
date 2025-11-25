@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Recall Tutor</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --bg: #dfe6e9;
+            --chat-bg: #ffffff;
+            --user-msg: #0984e3;
+            --agent-msg: #f1f2f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6c5ce7 0%, #0984e3 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Area */
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: #2d3436; }
+        
+        .mode-badge {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: #dfe6e9;
+            color: #636e72;
+            transition: all 0.3s ease;
+        }
+
+        /* Mode Colors */
+        .mode-learn { background: #ffeaa7; color: #d35400; }
+        .mode-quiz { background: #81ecec; color: #00cec9; }
+        .mode-teach { background: #a29bfe; color: #6c5ce7; }
+
+        /* Chat Area */
+        #chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .agent { background: var(--agent-msg); color: #2d3436; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .user { background: var(--user-msg); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        /* Controls */
+        .controls {
+            padding: 20px;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+            transition: transform 0.2s, background 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mic-btn:hover { transform: scale(1.05); }
+        #mic-btn:active { transform: scale(0.95); }
+
+        .pulse {
+            animation: pulse-animation 1.5s infinite;
+            background: #ff7675 !important;
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(255, 118, 117, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 118, 117, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 118, 117, 0); }
+        }
+
+        .status-text { font-size: 0.8rem; color: #b2bec3; }
+
+    </style>
+</head>
+<body>
+
+    <div class="glass-container">
+        <div class="header">
+            <h1>🎓 Active Recall Tutor</h1>
+            <span id="mode-badge" class="mode-badge">Setup Mode</span>
+        </div>
+
+        <div id="chat-box">
+            <div class="message agent">
+                Hello! I'm your AI Tutor. You can say "Learn Mode", "Quiz Mode", or "Teach Back Mode" to start.
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="mic-btn">🎙️</button>
+            <span id="status" class="status-text">Tap to Speak</span>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let tutorState = {
+            mode: "setup",
+            topic_index: 0,
+            last_agent_message: ""
+        };
+
+        const chatBox = document.getElementById('chat-box');
+        const micBtn = document.getElementById('mic-btn');
+        const statusText = document.getElementById('status');
+        const modeBadge = document.getElementById('mode-badge');
+
+        // Speech Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+
+        micBtn.addEventListener('click', () => {
+            recognition.start();
+            micBtn.classList.add('pulse');
+            statusText.textContent = "Listening...";
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            addMessage(transcript, 'user');
+            sendToBackend(transcript);
+            micBtn.classList.remove('pulse');
+            statusText.textContent = "Processing...";
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('pulse');
+            if(statusText.textContent === "Listening...") {
+                statusText.textContent = "Tap to Speak";
+            }
+        };
+
+        async function sendToBackend(userInput) {
+            try {
+                const response = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_input: userInput,
+                        current_state: tutorState
+                    })
+                });
+
+                const data = await response.json();
+                tutorState = data.updated_state;
+
+                // Update UI
+                updateModeUI(data.mode_display);
+                addMessage(data.agent_response, 'agent');
+                speak(data.agent_response);
+                statusText.textContent = "Tap to Speak";
+
+            } catch (error) {
+                console.error(error);
+                statusText.textContent = "Error connecting to tutor";
+            }
+        }
+
+        function updateModeUI(modeName) {
+            modeBadge.textContent = modeName;
+            modeBadge.className = 'mode-badge'; // reset
+            if(modeName.includes("LEARN")) modeBadge.classList.add('mode-learn');
+            if(modeName.includes("QUIZ")) modeBadge.classList.add('mode-quiz');
+            if(modeName.includes("TEACH")) modeBadge.classList.add('mode-teach');
+        }
+
+        function addMessage(text, type) {
+            const div = document.createElement('div');
+            div.classList.add('message', type);
+            div.textContent = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>

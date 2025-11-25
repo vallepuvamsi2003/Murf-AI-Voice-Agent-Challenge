@@ -1,0 +1,20 @@
+[
+  {
+    "id": "variables",
+    "title": "Variables",
+    "summary": "Variables are like containers that store values/data. This allows you to label data with a descriptive name, so our programs can be understood more clearly by the reader and ourselves. Think of it like a box with a label on it.",
+    "sample_question": "In your own words, why do we use variables instead of just writing numbers directly?"
+  },
+  {
+    "id": "loops",
+    "title": "Loops",
+    "summary": "Loops allow code to be executed repeatedly based on a condition. For loops are used when you know how many times to repeat, while While loops run as long as a condition is true.",
+    "sample_question": "What is the main difference between a For loop and a While loop?"
+  },
+  {
+    "id": "functions",
+    "title": "Functions",
+    "summary": "Functions are reusable blocks of code designed to perform a single, related action. They help reduce repetition and make code easier to read and debug.",
+    "sample_question": "Why is it better to use a function rather than copy-pasting code?"
+  }
+]
