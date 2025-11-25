@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .listening-pulse { animation: pulse 1.5s infinite; }
+        /* Animation for speaking bars */
+        @keyframes soundWave {
+            0%, 100% { height: 0.5rem; }
+            50% { height: 1.5rem; }
+        }
+        .wave-bar { animation: soundWave 0.5s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 flex flex-col h-[600px]">
+        <div class="text-center mb-4">
+            <h1 class="text-2xl font-bold text-blue-600">AI Voice Assistant</h1>
+            <p id="status-text" class="text-sm text-gray-500">Ready to chat</p>
+        </div>
+
+        <div id="chat-log" class="flex-1 overflow-y-auto space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-100 mb-4">
+            <div class="flex justify-start">
+                <div class="bg-blue-100 text-blue-800 p-3 rounded-tr-2xl rounded-bl-2xl rounded-br-2xl max-w-[85%] text-sm">
+                    Hi! Click the microphone to start talking.
+                </div>
+            </div>
+        </div>
+
+        <div id="visualizer" class="h-8 flex justify-center items-center space-x-1 mb-4 invisible">
+            <div class="wave-bar w-1.5 bg-blue-500 rounded-full" style="animation-delay: 0s"></div>
+            <div class="wave-bar w-1.5 bg-blue-500 rounded-full" style="animation-delay: 0.1s"></div>
+            <div class="wave-bar w-1.5 bg-blue-500 rounded-full" style="animation-delay: 0.2s"></div>
+            <div class="wave-bar w-1.5 bg-blue-500 rounded-full" style="animation-delay: 0.1s"></div>
+            <div class="wave-bar w-1.5 bg-blue-500 rounded-full" style="animation-delay: 0s"></div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center relative">
+            <button id="mic-button" 
+                class="w-20 h-20 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex justify-center items-center transition-all duration-300 shadow-lg focus:outline-none active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 6 0 0 0 6-6v-1.5a6 6 0 1 0-12 0v1.5a6 6 0 0 0 6 6Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 18L7.5 20.25h9L12.75 18" />
+                </svg>
+            </button>
+            
+            <p id="transcript" class="text-xs text-gray-400 mt-4 h-4 text-center truncate w-full px-4">
+                ...
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const micButton = document.getElementById('mic-button');
+        const statusText = document.getElementById('status-text');
+        const transcriptDisplay = document.getElementById('transcript');
+        const chatLog = document.getElementById('chat-log');
+        const visualizer = document.getElementById('visualizer');
+
+        let recognition;
+        let isListening = false;
+
+        // 1. Setup Speech Recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                micButton.classList.add('listening-pulse', 'bg-red-500');
+                micButton.classList.remove('bg-blue-600');
+                statusText.textContent = "Listening...";
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micButton.classList.remove('listening-pulse', 'bg-red-500');
+                micButton.classList.add('bg-blue-600');
+                statusText.textContent = "Processing...";
+            };
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                transcriptDisplay.textContent = `You: "${text}"`;
+                addMessage(text, 'user');
+                sendToBackend(text);
+            };
+            
+            recognition.onerror = (event) => {
+                console.error("Speech Error:", event.error);
+                statusText.textContent = "Error identifying speech.";
+            };
+        } else {
+            alert("Speech recognition not supported in this browser. Try Chrome.");
+        }
+
+        // 2. Button Logic
+        micButton.addEventListener('click', () => {
+            if (isListening) recognition.stop();
+            else {
+                window.speechSynthesis.cancel(); // Stop any current speaking
+                recognition.start();
+            }
+        });
+
+        // 3. Send to Backend (Fix for 404 Error)
+        async function sendToBackend(text) {
+            visualizer.classList.remove('invisible');
+            
+            try {
+                // Ensure this matches the Python route: http://127.0.0.1:5000/voice-chat
+                const response = await fetch('http://127.0.0.1:5000/voice-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
+                const data = await response.json();
+                addMessage(data.response_text, 'ai');
+                speak(data.response_text);
+
+            } catch (error) {
+                console.error(error);
+                const errorMsg = "I couldn't reach the server. Is 'app.py' running?";
+                addMessage(errorMsg, 'ai');
+                speak(errorMsg);
+            } finally {
+                visualizer.classList.add('invisible');
+                statusText.textContent = "Ready to chat";
+            }
+        }
+
+        // 4. UI Helpers
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `
+                <div class="${sender === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} 
+                p-3 rounded-2xl max-w-[85%] text-sm shadow-sm">
+                    ${text}
+                </div>
+            `;
+            chatLog.appendChild(div);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.onstart = () => visualizer.classList.remove('invisible');
+            utterance.onend = () => visualizer.classList.add('invisible');
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
