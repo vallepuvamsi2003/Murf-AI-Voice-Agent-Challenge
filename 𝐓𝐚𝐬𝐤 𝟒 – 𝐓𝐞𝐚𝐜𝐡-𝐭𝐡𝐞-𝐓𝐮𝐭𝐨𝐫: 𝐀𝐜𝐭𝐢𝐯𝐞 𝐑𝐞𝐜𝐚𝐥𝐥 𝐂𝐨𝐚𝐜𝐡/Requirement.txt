@@ -2,7 +2,29 @@ fastapi
 uvicorn
 pydantic
 
-
 To Run:   cd backend
           
           python -m uvicorn main:app --reload
+
+
+### 6. Interaction Script (Testing)
+
+Try this conversation flow to verify all requirements:
+
+1.  **Start:**
+    * *You:* (Click Mic) "Hello."
+    * *Agent:* "Welcome... Which mode do you prefer?"
+2.  **Learn Mode:**
+    * *You:* "Switch to Learn Mode."
+    * *Agent:* (Reads the Variables summary)
+3.  **Quiz Mode (Testing Switch):**
+    * *You:* "Switch to Quiz Mode."
+    * *Agent:* "Here is a question about Variables..."
+4.  **Teach Back Mode (Testing Feedback):**
+    * *You:* "Switch to Teach Back Mode."
+    * *Agent:* "Pretend I'm a student..."
+    * *You:* "Variables are like boxes that hold data."
+    * *Agent:* "Great job! You mentioned key concepts..."
+5.  **Navigation:**
+    * *You:* "Go to the next topic."
+    * *Agent:* "Moving on to Loops..."
