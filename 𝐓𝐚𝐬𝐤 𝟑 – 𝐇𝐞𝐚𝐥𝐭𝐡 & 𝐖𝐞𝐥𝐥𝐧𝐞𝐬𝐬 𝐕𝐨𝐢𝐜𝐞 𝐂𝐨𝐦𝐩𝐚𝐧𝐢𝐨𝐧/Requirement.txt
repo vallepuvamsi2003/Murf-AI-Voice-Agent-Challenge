@@ -6,3 +6,19 @@ pydantic
 To Run:   cd backend
           
           python -m uvicorn main:app --reload
+
+### 5. How to Test (Verification Steps)
+
+1.  **First Session:**
+    * Click "Start Session".
+    * The Agent will say: *"Hello! I'm your wellness companion..."*
+    * Reply: *"I'm feeling a bit tired but okay."*
+    * Agent asks for goals.
+    * Reply: *"I want to finish my coding task and go for a walk."*
+    * Agent recaps. Say: *"Yes, that's right."*
+    * **Check:** Look in `backend/wellness_log.json`. You should see your data there.
+
+2.  **Second Session (The "Memory" Test):**
+    * Refresh the browser page.
+    * Click "Start Session".
+    * **Success Condition:** The Agent should say: *"Welcome back. Last time we spoke on [Date], you mentioned feeling **I'm feeling a bit tired but okay**. How are you today?"*
