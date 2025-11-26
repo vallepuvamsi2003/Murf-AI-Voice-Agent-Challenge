@@ -6,3 +6,15 @@ pydantic
 To Run:   cd backend
           
           python -m uvicorn main:app --reload
+
+
+{
+    "drinkType": "Latte",
+    "size": "Medium",
+    "milk": "Oat Milk",
+    "extras": [
+        "Sugar",
+        "Vanilla Syrup"
+    ],
+    "name": "Valle"
+}
