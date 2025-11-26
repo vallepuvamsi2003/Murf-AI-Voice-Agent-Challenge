@@ -1,0 +1,43 @@
+[
+  {
+    "userName": "Vamsi",
+    "securityIdentifier": "8821",
+    "cardEnding": "4242",
+    "status": "confirmed_safe",
+    "transactionName": "Apple Store",
+    "amount": "$1,200.00",
+    "transactionTime": "2:30 PM",
+    "transactionSource": "apple.com",
+    "location": "California, USA",
+    "securityQuestion": "What is the name of your first pet?",
+    "securityAnswer": "max",
+    "outcome_note": "Customer confirmed transaction."
+  },
+  {
+    "userName": "John",
+    "securityIdentifier": "9910",
+    "cardEnding": "1190",
+    "status": "pending_review",
+    "transactionName": "Unknown Crypto Exchange",
+    "amount": "$5,000.00",
+    "transactionTime": "4:15 AM",
+    "transactionSource": "binance-p2p.com",
+    "location": "Lagos, Nigeria",
+    "securityQuestion": "What is your mother's maiden name?",
+    "securityAnswer": "smith"
+  },
+  {
+    "userName": "Mike",
+    "securityIdentifier": "3322",
+    "cardEnding": "8811",
+    "status": "verification_failed",
+    "transactionName": "Starbucks",
+    "amount": "$15.00",
+    "transactionTime": "9:00 AM",
+    "transactionSource": "POS Terminal",
+    "location": "Mumbai, India",
+    "securityQuestion": "What city were you born in?",
+    "securityAnswer": "delhi",
+    "outcome_note": "User failed security question."
+  }
+]
