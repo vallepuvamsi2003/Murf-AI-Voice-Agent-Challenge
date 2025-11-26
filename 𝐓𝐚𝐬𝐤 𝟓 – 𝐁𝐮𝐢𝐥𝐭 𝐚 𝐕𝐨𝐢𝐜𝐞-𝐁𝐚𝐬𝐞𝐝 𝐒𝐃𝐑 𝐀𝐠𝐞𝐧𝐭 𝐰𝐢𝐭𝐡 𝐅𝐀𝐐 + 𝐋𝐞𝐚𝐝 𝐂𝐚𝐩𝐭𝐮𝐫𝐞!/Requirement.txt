@@ -3,3 +3,11 @@ uvicorn
 pydantic
 
 python -m uvicorn main:app --reload
+
+### Usage Example
+* **Agent:** "Welcome to Razorpay! I'm Riya... May I ask your name?"
+* **User:** "My name is Arjun."
+* *UI updates Name field to Arjun.*
+* **Agent:** "Thanks Arjun. Which company are you representing?"
+* **User:** "How much does the payment gateway cost?" (Interruption/FAQ)
+* **Agent:** "For our standard Payment Gateway, we charge 2% per transaction... By the way, thanks Arjun. Which company are you representing?" (Answers, then returns to lead flow).
