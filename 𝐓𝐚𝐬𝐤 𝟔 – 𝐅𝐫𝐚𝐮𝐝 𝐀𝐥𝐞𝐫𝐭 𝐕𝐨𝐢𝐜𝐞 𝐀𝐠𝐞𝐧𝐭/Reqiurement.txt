@@ -1,0 +1,31 @@
+fastapi
+uvicorn
+pydantic
+
+python -m uvicorn main:app --reload
+
+### 6. Test Scenarios
+
+1.  **The Happy Path (Safe):**
+    * **User:** "My name is John."
+    * **Agent:** "...What is the name of your first pet?"
+    * **User:** "Max."
+    * **Agent:** "...Transaction at Apple Store for $1,200... Did you authorize this?"
+    * **User:** "Yes, I did."
+    * **Result:** UI Case Status changes to GREEN (CONFIRMED SAFE). Database status updates.
+
+2.  **The Fraud Path:**
+    * **User:** "My name is Sarah."
+    * **Agent:** "...Mother's maiden name?"
+    * **User:** "Smith."
+    * **Agent:** "...Crypto Exchange... Did you authorize this?"
+    * **User:** "No, absolutely not!"
+    * **Result:** UI Case Status changes to RED (CONFIRMED FRAUD). Card is "blocked".
+
+3.  **The Failed Verification:**
+    * **User:** "My name is Mike."
+    * **Agent:** "...City you were born in?"
+    * **User:** "London." (Wrong answer)
+    * **Agent:** "That answer is incorrect..." (Attempts counter increases).
+    * **User:** "New York." (Wrong answer 2).
+    * **Result:** Agent terminates call. Status updates to `verification_failed`.
