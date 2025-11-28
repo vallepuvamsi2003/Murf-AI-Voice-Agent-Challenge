@@ -1,0 +1,12 @@
+python -m uvicorn main:app --reload
+
+The Full Script:
+
+You: "Start Game"
+Agent: "...Door is jammed, vent above..."
+You: "Climb the vent"
+Agent: "...Left or Right?"
+You: "Go Left"
+Agent: "You find flares. An Alien Drone blocks your path! Do you ATTACK or RUN?"
+You: "I attack with the flare!"
+Agent: "VICTORY! The drone explodes. Path clear. MISSION ACCOMPLISHED."
