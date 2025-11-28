@@ -1,0 +1,43 @@
+{
+    "timestamp": "2025-11-28 12:57:44",
+    "total": 390.0,
+    "items": [
+        {
+            "id": "bread",
+            "name": "Whole Wheat Bread",
+            "price": 50.0,
+            "quantity": 1
+        },
+        {
+            "id": "butter",
+            "name": "Salted Butter",
+            "price": 60.0,
+            "quantity": 1
+        },
+        {
+            "id": "cheese",
+            "name": "Cheddar Cheese",
+            "price": 120.0,
+            "quantity": 1
+        },
+        {
+            "id": "tomato",
+            "name": "Tomato (1kg)",
+            "price": 40.0,
+            "quantity": 1
+        },
+        {
+            "id": "chips",
+            "name": "Potato Chips",
+            "price": 20.0,
+            "quantity": 1
+        },
+        {
+            "id": "chocolate",
+            "name": "Dark Chocolate",
+            "price": 100.0,
+            "quantity": 1
+        }
+    ],
+    "status": "Order Placed"
+}
