@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.R.E.S. Protocol</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-green: #0f0;
+            --dim-green: #003300;
+            --bg-black: #050505;
+            --alert-red: #ff3333;
+            --hud-blue: #00f0ff;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- START OVERLAY (Fixes Audio Issue) --- */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.95);
+            z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #init-btn {
+            background: transparent; color: var(--neon-green);
+            border: 2px solid var(--neon-green); padding: 20px 40px;
+            font-family: 'Share Tech Mono', monospace; font-size: 24px;
+            cursor: pointer; box-shadow: 0 0 15px var(--neon-green);
+            animation: pulse 1.5s infinite;
+        }
+        #init-btn:hover { background: var(--dim-green); }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px; pointer-events: none; z-index: 10;
+        }
+
+        .hud-header {
+            border-bottom: 2px solid var(--neon-green); padding: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--dim-green); box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .system-status { font-size: 1.2rem; text-transform: uppercase; animation: blink 2s infinite; }
+
+        #game-output {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+            font-size: 1.1rem; line-height: 1.6; text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .msg-gm { color: var(--neon-green); border-left: 3px solid var(--neon-green); padding-left: 10px; margin-right: 20%; }
+        .msg-player { color: var(--hud-blue); text-align: right; border-right: 3px solid var(--hud-blue); padding-right: 10px; margin-left: 20%; text-shadow: 0 0 5px var(--hud-blue); }
+
+        .control-panel {
+            padding: 20px; border-top: 2px solid var(--neon-green); background: black;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+
+        #mic-btn {
+            width: 80px; height: 80px; border-radius: 50%; background: black;
+            border: 2px solid var(--neon-green); color: var(--neon-green);
+            font-size: 2rem; cursor: pointer; box-shadow: 0 0 10px var(--neon-green);
+            transition: all 0.2s;
+        }
+        #mic-btn:hover { background: var(--dim-green); transform: scale(1.1); }
+        #mic-btn.recording { background: var(--alert-red); border-color: var(--alert-red); color: white; box-shadow: 0 0 20px var(--alert-red); animation: pulse 1s infinite; }
+
+        .status-text { font-size: 0.9rem; color: #555; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: black; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-green); }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <button id="init-btn">INITIALIZE SYSTEM</button>
+    </div>
+
+    <div class="scanlines"></div>
+
+    <div class="hud-header">
+        <div>A.R.E.S. V4.2</div>
+        <div class="system-status">O2 LEVELS: CRITICAL</div>
+    </div>
+
+    <div id="game-output"></div>
+
+    <div class="control-panel">
+        <button id="mic-btn">🎙️</button>
+        <div class="status-text" id="status-text">AWAITING SYSTEM BOOT...</div>
+        <button onclick="location.reload()" style="background:transparent; color:var(--neon-green); border:1px solid var(--neon-green); cursor:pointer;">REBOOT SYSTEM</button>
+    </div>
+
+    <script>
+        let history = [];
+        const API_URL = "http://localhost:8000/turn";
+        const outputDiv = document.getElementById('game-output');
+        const micBtn = document.getElementById('mic-btn');
+        const statusText = document.getElementById('status-text');
+        const overlay = document.getElementById('overlay');
+        const initBtn = document.getElementById('init-btn');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        // --- Start Logic ---
+        initBtn.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            statusText.textContent = "AWAITING INPUT";
+            startGame();
+        });
+
+        function startGame() {
+            history = [];
+            outputDiv.innerHTML = "";
+            sendTurn("START");
+        }
+
+        // --- Interaction Logic ---
+        micBtn.addEventListener('click', () => {
+            recognition.start();
+            micBtn.classList.add('recording');
+            statusText.textContent = "LISTENING...";
+        });
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            addMessage(transcript, "msg-player");
+            sendTurn(transcript);
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('recording');
+            statusText.textContent = "AWAITING INPUT";
+        };
+
+        async function sendTurn(userInput) {
+            if (userInput !== "START") statusText.textContent = "A.R.E.S. COMPUTING...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ history: history, user_input: userInput })
+                });
+
+                const data = await response.json();
+                history = data.updated_history;
+                
+                const lastMsg = data.response;
+                addMessage(lastMsg, "msg-gm");
+                speak(lastMsg);
+                
+                statusText.textContent = "AWAITING INPUT";
+
+            } catch (error) {
+                console.error(error);
+                addMessage("CONNECTION ERROR: BACKEND OFFLINE", "msg-gm");
+            }
+        }
+
+        function addMessage(text, className) {
+            const div = document.createElement('div');
+            div.classList.add(className);
+            div.textContent = text;
+            outputDiv.appendChild(div);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            const robotVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('David')); 
+            if (robotVoice) utterance.voice = robotVoice;
+            utterance.pitch = 0.8; 
+            utterance.rate = 1.1;  
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
