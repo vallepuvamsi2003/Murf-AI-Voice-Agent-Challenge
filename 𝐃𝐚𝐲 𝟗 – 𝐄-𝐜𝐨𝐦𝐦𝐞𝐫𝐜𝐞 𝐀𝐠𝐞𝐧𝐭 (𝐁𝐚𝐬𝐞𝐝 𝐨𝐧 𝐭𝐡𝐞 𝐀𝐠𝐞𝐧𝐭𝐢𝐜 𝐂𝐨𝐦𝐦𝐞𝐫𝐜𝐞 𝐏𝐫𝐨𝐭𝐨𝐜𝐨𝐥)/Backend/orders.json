@@ -1,0 +1,25 @@
+[
+  {
+    "order_id": "ord_3e96b788",
+    "items": [
+      {
+        "product_id": "prod_001",
+        "product_name": "Neon Cyber Hoodie",
+        "quantity": 1,
+        "unit_price": 1200.0,
+        "currency": "INR"
+      },
+      {
+        "product_id": "prod_010",
+        "product_name": "Smart Fitness Watch",
+        "quantity": 1,
+        "unit_price": 3500.0,
+        "currency": "INR"
+      }
+    ],
+    "total_amount": 4700.0,
+    "currency": "INR",
+    "status": "CONFIRMED",
+    "created_at": "2025-11-30T00:17:57.710927"
+  }
+]
