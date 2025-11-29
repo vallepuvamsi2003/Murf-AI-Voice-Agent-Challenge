@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Agentic Commerce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
+            --accent: #00f2ea;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            height: 100vh;
+            background: radial-gradient(circle at 10% 20%, rgb(69, 39, 160) 0%, rgb(0, 0, 0) 90%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; }
+        .orb-1 { width: 300px; height: 300px; background: #ff0055; top: 10%; left: 20%; }
+        .orb-2 { width: 400px; height: 400px; background: #4e00c2; bottom: 10%; right: 10%; }
+        .orb-3 { width: 200px; height: 200px; background: #00f2ea; top: 40%; left: 60%; opacity: 0.6; }
+
+        .app-container {
+            width: 1000px; height: 85vh; background: var(--glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 30px;
+            display: flex; box-shadow: 0 25px 50px rgba(0,0,0,0.5); overflow: hidden;
+        }
+
+        .agent-panel { flex: 1; padding: 30px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .brand { font-size: 24px; font-weight: 700; letter-spacing: 1px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .brand span { color: var(--accent); }
+
+        .chat-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 10px; }
+        .msg { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; max-width: 85%; animation: slideIn 0.3s ease; }
+        .msg-user { background: rgba(255,255,255,0.1); align-self: flex-end; border: 1px solid rgba(255,255,255,0.1); }
+        .msg-agent { background: linear-gradient(135deg, #4e00c2, #8f00ff); align-self: flex-start; box-shadow: 0 4px 15px rgba(143, 0, 255, 0.3); }
+
+        .controls { margin-top: 20px; display: flex; justify-content: center; flex-direction: column; align-items: center; gap: 10px; }
+        #mic-btn { width: 70px; height: 70px; border-radius: 50%; border: none; background: white; color: black; font-size: 28px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        #mic-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
+        #mic-btn.listening { background: var(--accent); animation: pulse 1.5s infinite; }
+        .status { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+        .commerce-panel { flex: 1.5; padding: 30px; background: rgba(0,0,0,0.2); overflow-y: auto; }
+        
+        /* Grid */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; padding: 15px; transition: transform 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .card-img { font-size: 40px; margin-bottom: 10px; }
+        .card-title { font-weight: 700; font-size: 16px; margin-bottom: 5px; }
+        .card-price { color: var(--accent); font-weight: 500; }
+        .card-cat { font-size: 10px; text-transform: uppercase; background: rgba(255,255,255,0.1); padding: 3px 8px; border-radius: 20px; position: absolute; top: 15px; right: 15px; }
+
+        /* Order/Cart Views */
+        .order-view, .cart-view { text-align: center; padding: 40px; background: rgba(78, 0, 194, 0.3); border-radius: 20px; border: 1px solid var(--accent); animation: fadeIn 0.5s; }
+        .order-icon { font-size: 60px; margin-bottom: 20px; }
+        .order-id { font-family: monospace; opacity: 0.7; margin-bottom: 20px; }
+        .line-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: center; }
+        .total-row { display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 20px; border-top: 2px solid var(--border); padding-top: 15px;}
+        
+        .cart-title { font-size: 24px; margin-bottom: 20px; text-align: left; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #start-btn { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 15px 40px; font-size: 18px; border-radius: 50px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: 2px; transition: 0.3s; }
+        #start-btn:hover { background: var(--accent); color: black; box-shadow: 0 0 30px var(--accent); }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--accent); } 70% { box-shadow: 0 0 0 20px rgba(0, 242, 234, 0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div id="overlay">
+        <button id="start-btn">INITIALIZE NEXUS AGENT</button>
+    </div>
+
+    <div class="app-container">
+        <!-- AGENT PANEL -->
+        <div class="agent-panel">
+            <div class="brand">NEXUS <span>//</span> COMMERCE</div>
+            <div class="chat-area" id="chat-box">
+                <div class="msg msg-agent" id="welcome-msg">Welcome. I can browse the catalog or place orders for you. Try saying "Add neon hoodie to cart".</div>
+            </div>
+            <div class="controls">
+                <button id="mic-btn">🎤</button>
+                <div class="status" id="status-txt">Tap to Speak</div>
+            </div>
+        </div>
+
+        <!-- COMMERCE PANEL -->
+        <div class="commerce-panel" id="commerce-view">
+            <div style="text-align: center; color: rgba(255,255,255,0.3); margin-top: 50px;">
+                Awaiting Agent Data...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const commerceView = document.getElementById('commerce-view');
+        const micBtn = document.getElementById('mic-btn');
+        const statusTxt = document.getElementById('status-txt');
+        const overlay = document.getElementById('overlay');
+        const welcomeMsg = document.getElementById('welcome-msg');
+
+        // --- INITIALIZATION ---
+        document.getElementById('start-btn').addEventListener('click', () => {
+            overlay.style.display = 'none';
+            fetchProducts();
+            speak(welcomeMsg.innerText);
+        });
+
+        // --- SPEECH RECOGNITION ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+
+        micBtn.addEventListener('click', () => {
+            recognition.start();
+            micBtn.classList.add('listening');
+            statusTxt.innerText = "Listening...";
+        });
+
+        recognition.onresult = (event) => {
+            const txt = event.results[0][0].transcript;
+            addMessage(txt, 'user');
+            sendToAgent(txt);
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('listening');
+            statusTxt.innerText = "Tap to Speak";
+        };
+
+        // --- BACKEND CONNECTION ---
+        async function sendToAgent(text) {
+            try {
+                const res = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_input: text })
+                });
+                const response = await res.json();
+                
+                addMessage(response.voice_response, 'agent');
+                speak(response.voice_response);
+                
+                renderView(response.ui_view, response.data);
+
+            } catch (e) {
+                console.error(e);
+                addMessage("Connection Error", 'agent');
+            }
+        }
+
+        async function fetchProducts() {
+            try {
+                const res = await fetch('http://localhost:8000/chat', {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_input: "show catalog" })
+                });
+                const response = await res.json();
+                renderView('catalog', response.data);
+            } catch(e) {}
+        }
+
+        // --- RENDERERS ---
+        function renderView(viewType, data) {
+            commerceView.innerHTML = ""; 
+            
+            if (viewType === "catalog") {
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                data.forEach(prod => {
+                    grid.innerHTML += `
+                        <div class="card">
+                            <span class="card-cat">${prod.category}</span>
+                            <div class="card-img">${prod.image}</div>
+                            <div class="card-title">${prod.name}</div>
+                            <div class="card-price">${prod.price} ${prod.currency}</div>
+                        </div>
+                    `;
+                });
+                commerceView.appendChild(grid);
+            } 
+            else if (viewType === "order_success" || viewType === "history") {
+                commerceView.innerHTML = `
+                    <div class="order-view">
+                        <div class="order-icon">✅</div>
+                        <h2>Order Confirmed</h2>
+                        <div class="order-id">ID: ${data.order_id}</div>
+                        ${data.items.map(item => `
+                            <div class="line-item">
+                                <span>${item.product_name} (x${item.quantity})</span>
+                                <span>${item.unit_price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                        <div class="total-row">
+                            <span>Total</span>
+                            <span>${data.total_amount} ${data.currency}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            else if (viewType === "cart") {
+                commerceView.innerHTML = `
+                    <div class="cart-view">
+                        <div class="cart-title">🛒 Your Cart</div>
+                        ${data.cart.length === 0 ? '<div style="opacity:0.6; padding:20px;">Cart is empty</div>' : ''}
+                        ${data.cart.map(item => `
+                            <div class="line-item">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-size:24px;">${item.image}</span>
+                                    <span>${item.product_name}</span>
+                                </div>
+                                <span>x${item.quantity}</span>
+                            </div>
+                        `).join('')}
+                        <div class="total-row">
+                            <span>Cart Total</span>
+                            <span>${data.total} INR</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `msg msg-${sender}`;
+            div.innerText = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(u);
+        }
+    </script>
+</body>
+</html>
