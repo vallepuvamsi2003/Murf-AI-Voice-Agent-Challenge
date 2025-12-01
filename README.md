@@ -17,12 +17,11 @@ The agent now:
 ✅ Maintains a structured order state:
 
 { "drinkType": "", "size": "", "milk": "", "extras": [], "name": "" }
-✅ Automatically saves the final order into a JSON file for processing/analytics Seeing the agent guide the conversation, confirm preferences, and generate a clean order summary felt like building a tiny Starbucks AI — and I loved it! 
-☕✨ Next up: pushing this further into a smarter, faster, more human-like ordering experience.
+✅ Automatically saves the final order into a JSON file for processing/analytics Seeing the agent guide the conversation
 
 𝐃𝐚𝐲 𝟑 – 𝐇𝐞𝐚𝐥𝐭𝐡 & 𝐖𝐞𝐥𝐥𝐧𝐞𝐬𝐬 𝐕𝐨𝐢𝐜𝐞 𝐂𝐨𝐦𝐩𝐚𝐧𝐢𝐨𝐧
 
-Today’s build was all about empathy, consistency, and meaningful interaction. I created a daily wellness-focused voice agent that checks in like a supportive companion—without trying to be a clinician.
+I created a daily wellness-focused voice agent that checks in like a supportive companion—without trying to be a clinician.
 
 💡 What the Agent Does
 ✅ Conducts short daily voice check-ins
@@ -31,32 +30,19 @@ Today’s build was all about empathy, consistency, and meaningful interaction. 
 ✅ Offers simple, actionable, non-medical suggestions
 ✅ Recaps the conversation to reinforce clarity & intention
 
-🧠 Memory + Personalization
-Every session is logged into a wellness_log.json file that stores:
-Timestamp
-Reported moo
-Daily objectives
-
 𝐃𝐚𝐲 𝟒 – 𝐌𝐮𝐫𝐟 𝐀𝐈 𝐀𝐠𝐞𝐧𝐭 𝐂𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞: 𝐓𝐞𝐚𝐜𝐡-𝐭𝐡𝐞-𝐓𝐮𝐭𝐨𝐫 – 𝐀𝐜𝐭𝐢𝐯𝐞 𝐑𝐞𝐜𝐚𝐥𝐥 𝐂𝐨𝐚𝐜𝐡
 
-Today’s build was all about tapping into one of the most powerful learning principles: “the best way to learn is to teach.”
-For Day 4, I turned the voice agent into an Active Recall Coach that helps learners master concepts using three interactive modes — each powered by different Murf Falcon voices to create an immersive experience.
+I turned the voice agent into an Active Recall Coach that helps learners master concepts using three interactive modes — each powered by different Murf Falcon voices to create an immersive experience.
 🎙️ 𝐓𝐡𝐫𝐞𝐞 𝐋𝐞𝐚𝐫𝐧𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐬:
 🔹 𝐋𝐞𝐚𝐫𝐧 𝐌𝐨𝐝𝐞 – The agent explains a concept using Murf Falcon Voice: Matthew.
  🔹 𝐐𝐮𝐢𝐳 𝐌𝐨𝐝𝐞 – It asks quick questions to test understanding using Alicia.
  🔹 𝐓𝐞𝐚𝐜𝐡-𝐁𝐚𝐜𝐤 𝐌𝐨𝐝𝐞 – It prompts the learner to teach the concept back and gives qualitative feedback using Ken.
-📘 Powered by a Simple JSON Content File
-I built a small course content file containing concepts like:
-Variables
-Loops
-This file drives the entire learning flow — explanations, quiz prompts, and teach-back questions.
 
 🚀 𝐃𝐚𝐲 𝟓 – 𝐁𝐮𝐢𝐥𝐭 𝐚 𝐕𝐨𝐢𝐜𝐞-𝐁𝐚𝐬𝐞𝐝 𝐒𝐃𝐑 𝐀𝐠𝐞𝐧𝐭 𝐰𝐢𝐭𝐡 𝐅𝐀𝐐 + 𝐋𝐞𝐚𝐝 𝐂𝐚𝐩𝐭𝐮𝐫𝐞!
 
-Today’s task for the Murf AI Agent Challenge was to turn the voice agent into a Sales Development Representative (SDR) — one that can answer FAQs, qualify leads, and generate clean JSON summaries at the end of the call.
- And yes… I got it working! 🎉
+Murf AI Agent Challenge was to turn the voice agent into a Sales Development Representative (SDR) — one that can answer FAQs, qualify leads, and generate clean JSON summaries at the end of the call.
 🔹 What I Built
-I chose [Your Company Name – e.g., Razorpay, Zomato for Work, Freshworks, Zepto, etc.] and created a fully functional voice-based SDR that can:
+I chose Razorpay and created a fully functional voice-based SDR that can:
 ✅ Greet users warmly
  ✅ Ask what brought them in
  ✅ Identify their needs
@@ -67,7 +53,7 @@ I chose [Your Company Name – e.g., Razorpay, Zomato for Work, Freshworks, Zept
 
  🚨 𝐃𝐚𝐲 𝟔 – 𝐅𝐫𝐚𝐮𝐝 𝐀𝐥𝐞𝐫𝐭 𝐕𝐨𝐢𝐜𝐞 𝐀𝐠𝐞𝐧𝐭 (𝐌𝐮𝐫𝐟 𝐀𝐈 𝐀𝐠𝐞𝐧𝐭 𝐂𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞)
 
- Today’s build was all about security, trust, and real-world impact — I created a Fraud Alert Voice Agent for a fictional bank that can detect suspicious activity and guide a customer through a safe verification flow.
+I created a Fraud Alert Voice Agent for a fictional bank that can detect suspicious activity and guide a customer through a safe verification flow.
 🔐 𝐖𝐡𝐚𝐭 𝐈 𝐁𝐮𝐢𝐥𝐭
  Using my existing voice agent setup, I created a mini fraud-detection system powered by a fake database of suspicious transactions. The agent:
  ✔ Introduces itself as the bank’s fraud department
@@ -77,11 +63,10 @@ I chose [Your Company Name – e.g., Razorpay, Zomato for Work, Freshworks, Zept
  ✔ Asks whether the user actually made that payment
  ✔ Marks the case as safe or fraudulent
  ✔ Updates the database with final status + outcome notes
-No real card numbers. No PINs. No sensitive info — fully sandboxed and demo-safe.
 
 🚀𝐃𝐚𝐲 𝟕 – 𝐅𝐨𝐨𝐝 & 𝐆𝐫𝐨𝐜𝐞𝐫𝐲 𝐎𝐫𝐝𝐞𝐫𝐢𝐧𝐠 𝐕𝐨𝐢𝐜𝐞 𝐀𝐠𝐞𝐧𝐭 (𝐌𝐮𝐫𝐟 𝐀𝐈 𝐀𝐠𝐞𝐧𝐭 𝐂𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞)
 
-Today I built a Food & Grocery Ordering Voice Assistant—a smart, voice-powered shopping companion inspired by platforms like Swiggy Instamart, Zepto, BigBasket, Blinkit and more.
+I built a Food & Grocery Ordering Voice Assistant—a smart, voice-powered shopping companion inspired by platforms like Swiggy Instamart, Zepto, BigBasket, Blinkit and more.
 This agent can help users order groceries, snacks, prepared foods… all using just their voice 🎤✨
 🛒 𝐖𝐡𝐚𝐭 𝐈 𝐁𝐮𝐢𝐥𝐭 𝐓𝐨𝐝𝐚𝐲
 ✅ 1. Catalog System (JSON-Based)
@@ -94,13 +79,42 @@ Tags like vegan, gluten-free, brand, size, category, etc.
 
 🎮 𝐃𝐚𝐲 𝟖 – 𝐁𝐮𝐢𝐥𝐭 𝐚 𝐕𝐨𝐢𝐜𝐞-𝐁𝐚𝐬𝐞𝐝 𝐃&𝐃-𝐒𝐭𝐲𝐥𝐞 𝐆𝐚𝐦𝐞 𝐌𝐚𝐬𝐭𝐞𝐫! 🐉✨
 
-As part of the Murf AI Agent Challenge, today I created one of the most fun agents so far — a voice-only Game Master that runs an interactive D&D-style adventure in real time!
+As part of the Murf AI Agent Challenge,I created one of the most fun agents so far — a voice-only Game Master that runs an interactive D&D-style adventure in real time!
 🔥 𝐖𝐡𝐚𝐭 𝐈 𝐁𝐮𝐢𝐥𝐭
 I turned my voice agent into a Game Master with its own persona, universe, and storytelling style.
  The agent:
-🔹 Runs a fantasy/sci-fi/post-apocalyptic world (I chose [your universe])
  🔹 Describes immersive scenes and asks: “What do you do?”
  🔹 Tracks my decisions using only chat history
  🔹 Responds dynamically to my choices like a real D&D GM
  🔹 Supports multi-turn storytelling with a mini story arc
  🔹 Works fully through voice—no clicking, no typing
+
+𝐃𝐚𝐲 - 𝟗 𝐀𝐈 𝐕𝐨𝐢𝐜𝐞 𝐀𝐠𝐞𝐧𝐭 𝐂𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞 – 𝐄-𝐂𝐨𝐦𝐦𝐞𝐫𝐜𝐞 𝐀𝐠𝐞𝐧𝐭 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐭𝐡𝐞 𝐀𝐠𝐞𝐧𝐭𝐢𝐜 𝐂𝐨𝐦𝐦𝐞𝐫𝐜𝐞 𝐏𝐫𝐨𝐭𝐨𝐜𝐨𝐥 (𝐀𝐂𝐏-𝐋𝐢𝐭𝐞)
+
+I built a voice-driven shopping assistant that can:
+ 🛍️ Understand shopping intent
+ 🔎 Browse a product catalog via natural speech
+ 🛒 Create structured ACP-style orders
+ 💬 Mix voice + UI interactions
+ 📦 Persist order history like a real merchant backend
+🔧 Tech I implemented
+✔ FastAPI-based merchant API
+ ✔ ACP-inspired order + catalog schema
+ ✔ React + Tailwind UI with a unique multicolor gradient design
+ ✔ “Buy now” button + voice ordering
+ ✔ JSON-based catalog + order storage
+
+ 🚀 𝐃𝐚𝐲 𝟏𝟎 - 𝐕𝐨𝐢𝐜𝐞 𝐀𝐠𝐞𝐧𝐭 𝐂𝐡𝐚𝐥𝐥𝐞𝐧𝐠𝐞 – 𝐕𝐨𝐢𝐜𝐞 𝐈𝐦𝐩𝐫𝐨𝐯 𝐁𝐚𝐭𝐭𝐥𝐞! 🎭🎤
+
+A voice-first improv game show called “Improv Battle”!
+This isn’t a quiz or trivia bot…
+🎬 𝐖𝐡𝐚𝐭 𝐈 𝐁𝐮𝐢𝐥𝐭
+A complete single-player improv engine:
+🎙️ Web Join Screen:
+ – Player enters their name
+ – Clicks “Start Improv Battle”
+ – Connects instantly to a Voice Agent by fast API.
+🎭 𝐈𝐦𝐩𝐫𝐨𝐯 𝐑𝐨𝐮𝐧𝐝𝐬:
+ The AI generates scenarios like:
+ ✔ “You are a waiter calmly explaining that the customer’s dinner has escaped the kitchen.”
+ ✔ “You are a time-travelling guide explaining smartphones to someone from 1800.”
